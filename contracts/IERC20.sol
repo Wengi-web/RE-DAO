@@ -54,16 +54,21 @@ contract WRDAO is IERC20 {
         allowances[msg.sender][spender] = amount;
         emit Approval(msg.sender, spender, amount);
         return true;
-
     }
 
+    //allowance for a spender to transfer tokens on behalf of owner
+    function allowance (address owner, address spender) external view override returns (uint256) {
+        return allowances[owner][spender];
+    }
 
-
-
-
-
-
-
-
-    
+    //transfer tokens from sender to recipient on bnehalf of sender's approval
+    function transferFrom(address sender, address recipient, uint256 amount) external overrride returns (bool) {
+        require(balances[sender] >= amount, "Insuficient balance");
+        require(allowances[sender][msg.sender] >= amount, "Insuficient allowance");
+        balances[sendder] -= amount;
+        balances[recipient] += amount;
+        allowances[sender][msg.sender] -= amount;
+        emit Transfer(sender, recipient, amount);
+        return true;
+    }
 }
