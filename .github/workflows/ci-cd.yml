@@ -1,0 +1,32 @@
+name: CI/CD
+
+on:
+  push:
+    branches: [develop]
+
+jobs:
+  build:
+    runs-on: ubuntu-latest
+    env:
+      NODE_VERSION: 16.x
+
+    steps:
+      - name: Checkout code
+        uses: actions/checkout@v2
+
+      - name: Install Node.js and dependencies
+        uses: actions/setup-node@v2
+        with:
+          node-version: ${{ env.NODE_VERSION }}
+      - run: npm install
+
+      - name: Security scanning with Snyk
+        run: npx snyk test
+
+      - name: Hardhat Test
+        run: |
+          npx hardhat test
+
+      - name: Deploy to FVM
+        run: |
+          npx hardhat deploy --network fvm
