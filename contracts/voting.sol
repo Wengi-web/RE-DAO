@@ -8,11 +8,11 @@ import "./IERC20.sol";
 //voting contract on proposals
 contract Voting {
     //state variables
-    proposal public proposal;
-    addresspublic daoAddress;
+    Proposal public proposal;
+    address public daoAddress;
     IERC20 public daoToken;
 
-    // Mappinfg to track which voters have already voted
+    // Mapping to track which voters have already voted
     mapping(address => bool) public hasVoted;
 
     //track votes casted
@@ -21,7 +21,7 @@ contract Voting {
     //constructoer to initialize proposal details
     constructor(address _proposalAddress, address _daoAddress) {
         //initiate proposal contract
-        proposal = proposal(_proposalAddress);
+        proposal = Proposal(_proposalAddress);
 
         //init dao address and dao contract
         daoAddress = _daoAddress;
@@ -40,6 +40,6 @@ contract Voting {
 
         hasVoted[voter] = true;
 
-        emit VoteCast(voter, _approved, _amount);
+        emit voteCast(voter, _approved, _amount);
     }
 }
