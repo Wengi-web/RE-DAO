@@ -5,16 +5,17 @@ pragma solidity ^0.8.0;
 interface IERC20 {
     function totalSupply() external view returns (uint256);
 
-    function ballanceOf(address account) external view returns (uint256);
+    function balanceOf(address account) external view returns (uint256);
 
     function transfer(address recipient, uint256 amount) external returns (bool);
 
     function allowance(address owner, address spender) external view returns (uint256);
 
-    function approve(address spender, uint amount) external returns (bool);
+    function approve(address spender, uint256 amount) external returns (bool);
 
     function transferFrom(address sender, address recipient, uint256 amount) external returns (bool);
 
+    event Approval(address indexed owner, address indexed spender, uint256 value);
     event Transfer(address indexed from, address indexed to, uint256 value);
 
 }
@@ -62,10 +63,10 @@ contract WRDAO is IERC20 {
     }
 
     //transfer tokens from sender to recipient on bnehalf of sender's approval
-    function transferFrom(address sender, address recipient, uint256 amount) external overrride returns (bool) {
+    function transferFrom(address sender, address recipient, uint256 amount) external override returns (bool) {
         require(balances[sender] >= amount, "Insuficient balance");
         require(allowances[sender][msg.sender] >= amount, "Insuficient allowance");
-        balances[sendder] -= amount;
+        balances[sender] -= amount;
         balances[recipient] += amount;
         allowances[sender][msg.sender] -= amount;
         emit Transfer(sender, recipient, amount);
