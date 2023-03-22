@@ -2,5 +2,8 @@
   "devDependencies": {
     "@nomicfoundation/hardhat-toolbox": "^2.0.2",
     "hardhat": "^2.13.0"
+  },
+  "dependencies": {
+    "web3": "^1.9.0"
   }
 }
