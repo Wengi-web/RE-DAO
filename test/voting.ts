@@ -17,8 +17,8 @@ describe("Voting Contract", () => {
     //new proposal
     beforeEach(async () => {
         [owner, addr1, addr2] = await ethers.getSigners();
-        let proposal = await ethers.getContractFactory("Proposal");
-        proposal = await proposal.connect(owner).deploy(
+        let proposalInstance = await ethers.getContractFactory("Proposal");
+        proposal = await proposalInstance.connect(owner).deploy(
             1,
             await owner.getAddress(),
             "Test Proposal",
@@ -27,19 +27,47 @@ describe("Voting Contract", () => {
         );
         await proposal.deployed();
         const Voting = await ethers.getContractFactory("Voting");
-        voting = await voting.connect(owner).deploy(
+        voting = await Voting.connect(owner).deploy(
             proposal.address,
             await owner.getAddress()
         );
         await voting.deployed();
-        daotoken = await ethers.getContractAt("WRDAO", await owner.getAddress());
-        await daoToken.connect(owner).approve(voting.address, ethers.utils.parseEther("1"));
+        WRDAO = await ethers.getContractAt("WRDAO", await owner.getAddress());
+        await WRDAO.connect(owner).approve(voting.address, ethers.utils.parseEther("1"));
+    });
+
+    it("should initialize with correct proposal and daoToken values", async () => {
+        expect(await voting.proposal()).to.equal(proposal.address);
+        expect(await voting.daoAddress()).to.equal(await owner.getAddress());
+        expect(await voting.WRDAO()).to.equal(WRDAO.address);
     });
 
     it("should !allow users to vote more than once", async () => {
         await voting.connect(addr1).vote(true, ethers.utils.parseEther("0.5"));
         await expect(
             voting.connect(addr1).vote(false, ethers.utils.parseEther("0.5"))
-        ).to.be.revertedWith("")
-    })
-})
+        ).to.be.revertedWith("Voter has already cast their vote");
+    });
+
+    it("should transfer tokens from voter to voting contract", async () => {
+        const initialBalance = await WRDAO.balanceOf(await addr1.getAddress());
+        await voting.connect(addr1).vote(true, ethers.utils.parseEther("0.5"));
+        const finalBalance = await WRDAO.balanceOf(await addr1.getAddress());
+        expect(finalBalance).to.equal(initialBalance.sub(ethers.utils.parseEther("0.5")));
+        expect(await WRDAO.balanceOf(voting.address)).to.equal(
+            ethers.utils.parseEther("0.5")
+        );       
+    });
+
+    it("should not allow voting without sufficient WRDAO token balance", async () => {
+        await WRDAO.connect(addr1).approve(voting.address, ethers.utils.parseEther("0.5"));
+        await expect(
+            voting.connect(addr1).vote(true, ethers.utils.parseEther("1"))
+        ).to.be.revertedWith("WRDAO transfer failed");
+    });
+
+    it("should vote on the proposal", async () => {
+        await voting.connect(addr1).vote(true, ethers.utils.parseEther("0.5"));
+        expect(await proposal.votesFor()).to.equal(1);
+    });
+});
