@@ -6,7 +6,8 @@
 
 tasks:
   - init: npm install
-  - command: cd contracts && npx hardhat compile
+  - command: cd contracts && npm install --save-dev hardhat # npx hardhat compile
+  - command: cd frontend && npm install react
 
 
 
