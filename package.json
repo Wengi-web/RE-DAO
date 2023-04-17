@@ -3,7 +3,7 @@
     "@nomicfoundation/hardhat-toolbox": "^2.0.2",
     "@nomiclabs/hardhat-ethers": "^2.2.2",
     "ethers": "^5.7.2",
-    "hardhat": "^2.13.0",
+    "hardhat": "^2.14.0",
     "hardhat-waffle": "^0.0.1-security"
   },
   "dependencies": {
